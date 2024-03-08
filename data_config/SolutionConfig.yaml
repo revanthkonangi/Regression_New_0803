@@ -1,0 +1,93 @@
+database_name: Paris_pricing_regression_0803_v1
+ds_environment: dev
+sdk_session_id_dev: 7a2ea49970fe43398f206809cddb5772 
+sdk_session_id_uat: 656f26c8cd8c8de3ae54410f
+sdk_session_id_prod: 64ec92d6117247877965d152
+
+data_engineering:
+  data_engineering_ft:
+    features_dbfs_path: dbfs:/mnt/mlcore/dev/source/Supply_chain_partition_data_X_v1_fa23f727e37c4ccf9e3dbdf2cfb762ff
+    features_table_name: BQ_Based_Flow_FT_0803_v1
+    primary_keys:
+    - index
+  data_engineering_gt:
+    ground_truth_dbfs_path: dbfs:/mnt/mlcore/dev/source/Paris_Housing_Price_data_X_374c4fe5deaf446bbcce525d54721a2d
+    ground_truth_table_name: BQ_Based_Flow_GT_0803_v1
+    primary_keys:
+    - index
+data_prep_deployments:
+  data_prep_deployment_ft:
+    batch_size: 6000
+    cron_job_schedule: 0 */30 * ? * *
+    features_dbfs_path: BQ_Based_Flow_FT_0803_v1
+    is_scheduled: true
+    primary_keys:
+    - index
+    transformed_features_table_name: DPD_BQ_Based_Flow_FT_0803_v1
+  data_prep_deployment_gt:
+    batch_size: 6000
+    cron_job_schedule: 0 */30 * ? * *
+    ground_truth_dbfs_path: BQ_Based_Flow_GT_0803_v1
+    is_scheduled: true
+    primary_keys:
+    - index
+    transformed_ground_truth_table_name: DPD_BQ_Based_Flow_GT_0803_v1
+feature_pipelines:
+  feature_pipelines_ft:
+    features_dbfs_path: BQ_Based_Flow_FT_0803_v1
+    is_scheduled: false
+    primary_keys:
+    - index
+    transformed_features_table_name: Transformed_BQ_Based_Flow_FT_0803_v1
+  feature_pipelines_gt:
+    ground_truth_dbfs_path: BQ_Based_Flow_GT_0803_v1
+    is_scheduled: false
+    primary_keys:
+    - index
+    transformed_ground_truth_table_name: Transformed_BQ_Based_Flow_GT_0803_v1
+inference:
+  batch_size: 1000
+  cron_job_schedule: 0 */30 * ? * *
+  ground_truth_path: DPD_BQ_Based_Flow_GT_0803_v1
+  model_name: supply_chain_BQ_Based_Flow_0803_v1
+  model_version: '1'
+  output_table_name: inference_output_BQ_Based_Flow_0803_v1
+  transformed_features_path: DPD_BQ_Based_Flow_FT_0803_v1
+train:
+  feature_columns:
+  - num_refill_req_l3m
+  - transport_issue_l1y
+  - Competitor_in_mkt
+  - retail_shop_num
+  - distributor_num
+  - flood_impacted
+  - flood_proof
+  - electric_supply
+  - dist_from_hub
+  - storage_issue_reported_l3m
+  - temp_reg_mach
+  - wh_breakdown_l3m
+  - govt_check_l3m
+  feature_table_path: Transformed_BQ_Based_Flow_FT_0803_v1
+  ground_truth_path: Transformed_BQ_Based_Flow_GT_0803_v1
+  model_name: supply_chain_BQ_Based_Flow_0803_v1
+  model_version: '1'
+  primary_keys:
+  - index
+  target_columns:
+  - product_wg_ton
+  test_size: 0.2
+  train_output_table_name: train_output_BQ_Based_Flow_FT_0803_v1
+  hyperparameter_tuning:
+    max_evaluations : 20
+    primary_metric : mae
+    search_range :
+      copy_X : 
+        - true
+        - false
+      fit_intercept : 
+        - true
+        - false
+    max_evaluations : 20
+    stop_early : false
+    run_parallel : false
